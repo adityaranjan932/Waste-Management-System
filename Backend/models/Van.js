@@ -1,11 +1,13 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
-const VanSchema = new mongoose.Schema({
-  driverId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // driver (User with role "driver")
-  vehicleNumber: { type: String, required: true },
-  sector: { type: String, required: true }, // the sector where this van operates
-  currentLocation: { type: String, default: "Depot" },
-  status: { type: String, enum: ["idle", "on-duty"], default: "idle" },
-}, { timestamps: true });
+const vanSchema = new mongoose.Schema({
+  name: String,
+  location: {
+    type: { type: String, default: 'Point' },
+    coordinates: { type: [Number], required: true }, // [longitude, latitude]
+  },
+  status: { type: String, default: 'active' },
+});
 
-module.exports = mongoose.model("Van", VanSchema);
+vanSchema.index({ location: '2dsphere' });
+module.exports = mongoose.model('Van', vanSchema);
