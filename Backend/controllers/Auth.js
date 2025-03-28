@@ -7,16 +7,17 @@ require("dotenv").config()
 exports.sendOTP = async (req, res) => {
     try {
         console.log("Processing sendOTP request...");
-        const { email } = req.body;
-        //check if the user is already present 
-        const checkUserPresent = await User.findOne({ email });
+        const { phoneNumber } = req.body; // use phoneNumber instead of email
 
+        // Optionally, check if the phone number is already registered in the User collection
+        const checkUserPresent = await User.findOne({ contactNumber: phoneNumber });
         if (checkUserPresent) {
             return res.status(401).json({
                 success: false,
                 message: `User is already registered`,
             });
         }
+
         var otp = otpGenerator.generate(6, {
             upperCaseAlphabets: false,
             lowerCaseAlphabets: false,
@@ -24,7 +25,7 @@ exports.sendOTP = async (req, res) => {
         });
         console.log("OTP generated", otp);
 
-        //check unique otp 
+        // Ensure OTP uniqueness
         let result = await OTP.findOne({ otp: otp });
         while (result) {
             otp = otpGenerator.generate(6, {
@@ -34,15 +35,14 @@ exports.sendOTP = async (req, res) => {
             });
             result = await OTP.findOne({ otp: otp });
         }
-        const otpPayload = { email, otp };
-        //create an entry in DB
+        const otpPayload = { phoneNumber, otp }; // save phoneNumber here
         await OTP.create(otpPayload);
         console.log(otpPayload);
 
         console.log("OTP sent successfully");
         return res.status(200).json({
             success: true,
-            message: `Otp sent successfully`,
+            message: `OTP sent successfully`,
             otp,
         });
     } catch (error) {
@@ -53,6 +53,7 @@ exports.sendOTP = async (req, res) => {
         });
     }
 };
+
 
 //sign up
 exports.signUp = async (req, res) => {
