@@ -1,11 +1,12 @@
 import "./App.css";
 import Map from "./components/Map.jsx";
+import ErrorBoundary from "./components/ErrorBoundary.jsx";
 
 function App() {
   return (
-    <div>
+    <ErrorBoundary>
       <Map />
-    </div>
+    </ErrorBoundary>
   );
 }
 
